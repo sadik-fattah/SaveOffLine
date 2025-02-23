@@ -8,28 +8,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+    <EditText android:id="@+id/serachView"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Search"
+        android:text="https://sitarofor.blogspot.com/"
+        android:inputType="textWebEditText"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-        <EditText android:id="@+id/serachView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="Search"
-            android:inputType="textWebEditText"/>
+
         <Button
             android:id="@+id/runButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save Page Offline"
+            android:text="Run"
             android:layout_gravity="center" />
         <Button
             android:id="@+id/saveButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Save Page Offline"
+            android:text="Save"
             android:layout_gravity="center" />
+        <Button
+            android:id="@+id/offlineButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="off line"
+            android:layout_gravity="center" />
+
     </LinearLayout>
     <WebView
         android:id="@+id/webView"

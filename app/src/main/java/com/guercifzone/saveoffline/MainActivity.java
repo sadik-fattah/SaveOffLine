@@ -1,6 +1,7 @@
 package com.guercifzone.saveoffline;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.webkit.WebView;
@@ -23,7 +24,7 @@ import java.io.FileOutputStream;
 
 public class MainActivity extends AppCompatActivity  {
     private WebView webView;
-    private Button saveButton,runButton;
+    private Button saveButton,runButton,offlineButton;
     private EditText searchView;
     private WebPageDatabase webPageDatabase;
     @SuppressLint("MissingInflatedId")
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity  {
         saveButton = findViewById(R.id.saveButton);
         runButton = findViewById(R.id.runButton);
         searchView = findViewById(R.id.serachView);
+        offlineButton = findViewById(R.id.offlineButton);
         webPageDatabase = new WebPageDatabase(this);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setWebViewClient(new WebViewClient());
@@ -51,15 +53,28 @@ public class MainActivity extends AppCompatActivity  {
             String url = searchView.getText().toString();
             webView.loadUrl(url);
         });
+        offlineButton.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this,OffLineShow.class));
+            finish();
+        });
+
+
     }
 
     private void savePageOffline() {
         try {
             String url = webView.getUrl();
-            String htmlContent = webView.getUrl();
-            WebPage webPage = new WebPage(htmlContent, url);
-            webPageDatabase.savePage(webPage);
-            Toast.makeText(this, "Page saved offline", Toast.LENGTH_SHORT).show();
+            webView.evaluateJavascript("document.documentElement.outerHTML", html -> {
+                // html will contain the page's HTML
+                String pageHtml = html;
+                int id = 0;
+                // Now save the HTML content to the database
+                WebPage webpage = new WebPage(pageHtml,url,id);
+                WebPageDatabase webPageDatabase = new WebPageDatabase(this);
+                webPageDatabase.savePage(webpage);
+                Toast.makeText(this, "Page saved offline", Toast.LENGTH_SHORT).show();
+            });
+
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Error saving page offline", Toast.LENGTH_SHORT).show();

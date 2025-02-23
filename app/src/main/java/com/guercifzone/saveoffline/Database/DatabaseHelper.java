@@ -1,8 +1,11 @@
 package com.guercifzone.saveoffline.Database;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.guercifzone.saveoffline.Models.WebPage;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "webpages.db";
@@ -17,8 +20,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final  String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + "("
             + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + COLUMN_URL + " TEXT, "
-            + COLUMN_HTML_CONTENT + " TEXT"
+            + COLUMN_URL + " TEXT NOT NULL, "
+            + COLUMN_HTML_CONTENT + " TEXT NOT NULL"
             + ");";
 
     public DatabaseHelper(Context context) {
@@ -34,5 +37,25 @@ db.execSQL(CREATE_TABLE);
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
 onCreate(db);
+    }
+
+    public void savePage(WebPage webPage) {
+        SQLiteDatabase db = this.getWritableDatabase(); // Get writable database
+
+        // Prepare values to insert
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_URL, webPage.getUrl());
+        values.put(COLUMN_HTML_CONTENT, webPage.getHtmlContent());
+
+        // Insert the new record into the database
+        db.insert(TABLE_NAME, null, values);
+
+        // Close the database connection
+        db.close();
+    }
+    public void deletePage(int pageId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NAME, COLUMN_ID + " = ?", new String[]{String.valueOf(pageId)});
+        db.close();
     }
 }

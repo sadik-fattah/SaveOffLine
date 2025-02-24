@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:hint="Search"
-        android:text="https://sitarofor.blogspot.com/"
+        android:text="https://pasteplaintext.com/"
         android:inputType="textWebEditText"/>
     <LinearLayout
         android:layout_width="match_parent"

@@ -3,6 +3,7 @@ package com.guercifzone.saveoffline;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.guercifzone.saveoffline.Adapters.WebPageAdapter;
 import com.guercifzone.saveoffline.Database.WebPageDatabase;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OffLineShow extends AppCompatActivity {
+    private SwipeRefreshLayout swipeRefreshLayout;
     private WebPageDatabase webPageDatabase;
     private GridView gridView;
     private WebPageAdapter webPageAdapter;
@@ -41,7 +44,7 @@ public class OffLineShow extends AppCompatActivity {
         });
         webPageDatabase = new WebPageDatabase(this);
         gridView = findViewById(R.id.gridView);
-        deleteButton = findViewById(R.id.deleteButton);
+        swipeRefreshLayout = findViewById(R.id.main);
 
         ArrayList<WebPage> webpages = webPageDatabase.getAllWebPages();
         if (webpages.isEmpty() || webpages == null){
@@ -51,6 +54,18 @@ public class OffLineShow extends AppCompatActivity {
             webPageAdapter = new WebPageAdapter(this, webpages);
             gridView.setAdapter(webPageAdapter);
         }
+        swipeRefreshLayout.setColorSchemeResources(
+                android.R.color.holo_blue_dark,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_red_dark
+        );
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                                                    @Override
+                                                    public void onRefresh() {
+                                                        refreshData();
+                                                    }
+                                                });
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -61,14 +76,26 @@ public class OffLineShow extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-  deleteButton.setOnClickListener(v -> {
-      webPageDatabase.deleteWebPage(1);
-      webPageList.clear();
-      webPageList.addAll(webPageDatabase.getAllWebPages());
-      webPageAdapter.notifyDataSetChanged();
-  });
+
 
         }
+
+    private void refreshData() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                webPageList.clear(); // Clear the current list
+                webPageList.addAll(webPageDatabase.getAllWebPages()); // Add updated data
+
+                // Notify the adapter to update the GridView
+                webPageAdapter.notifyDataSetChanged();
+
+                // Stop the refresh animation
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        }, 2000);
+    }
 
     @Override
     protected void onResume() {

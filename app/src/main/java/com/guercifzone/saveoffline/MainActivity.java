@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -46,8 +48,17 @@ public class MainActivity extends AppCompatActivity  {
         webPageDatabase = new WebPageDatabase(this);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.setWebViewClient(new WebViewClient());
+        webView.setWebChromeClient(new WebChromeClient());
+
         saveButton.setOnClickListener(v -> {
-            savePageOffline();
+            webView.setWebViewClient(new WebViewClient(){
+                @Override
+                public void onPageFinished(WebView view, String url) {
+                    super.onPageFinished(view, url);
+                    savePageOffline();
+                }
+            });
+
         });
         runButton.setOnClickListener(v -> {
             String url = searchView.getText().toString();
@@ -55,21 +66,21 @@ public class MainActivity extends AppCompatActivity  {
         });
         offlineButton.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this,OffLineShow.class));
-            finish();
+
         });
 
 
     }
 
     private void savePageOffline() {
-        try {
+       /* try {
             String url = webView.getUrl();
             webView.evaluateJavascript("document.documentElement.outerHTML", html -> {
                 // html will contain the page's HTML
                 String pageHtml = html;
-                int id = 0;
+
                 // Now save the HTML content to the database
-                WebPage webpage = new WebPage(pageHtml,url,id);
+                WebPage webpage = new WebPage(url,pageHtml);
                 WebPageDatabase webPageDatabase = new WebPageDatabase(this);
                 webPageDatabase.savePage(webpage);
                 Toast.makeText(this, "Page saved offline", Toast.LENGTH_SHORT).show();
@@ -78,7 +89,23 @@ public class MainActivity extends AppCompatActivity  {
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Error saving page offline", Toast.LENGTH_SHORT).show();
+        }*/
+    webView.evaluateJavascript("document.documentElement.outerHTML",new ValueCallback<String>() {
+
+        @Override
+        public void onReceiveValue(String htmlContent) {
+            saveHtmlContentToDatabase(htmlContent);
         }
+    });
+
+    }
+
+    private void saveHtmlContentToDatabase(String htmlContent) {
+        String url = webView.getUrl();
+        WebPage webpage = new WebPage(url,htmlContent);
+        WebPageDatabase webPageDatabase = new WebPageDatabase(this);
+        webPageDatabase.savePage(webpage);
+        Toast.makeText(this, "Page saved offline", Toast.LENGTH_SHORT).show();
     }
 
 

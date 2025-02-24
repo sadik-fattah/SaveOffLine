@@ -53,9 +53,5 @@ onCreate(db);
         // Close the database connection
         db.close();
     }
-    public void deletePage(int pageId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_NAME, COLUMN_ID + " = ?", new String[]{String.valueOf(pageId)});
-        db.close();
-    }
+
 }

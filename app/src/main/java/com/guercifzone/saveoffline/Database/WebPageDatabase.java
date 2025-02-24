@@ -29,9 +29,19 @@ public class WebPageDatabase {
         values.put("html_content", webPage.getHtmlContent());
         db.insert("webpage", null, values);
     }
-    public void deleteWebPage(int pageId) {
-        db.delete("webpage", "id = ?", new String[]{String.valueOf(pageId)});
+    public boolean isWebPageExists(String url) {
+        SQLiteDatabase db = dbhelper.getReadableDatabase();
+        Cursor cursor = db.query("webpages", new String[]{"url"}, "url = ?", new String[]{url}, null, null, null);
+
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+
+        return exists;
     }
+public void deletePage(String url) {
+        SQLiteDatabase db = dbhelper.getWritableDatabase();
+        db.delete("webpage", "url = ?", new String[]{url});
+}
     @SuppressLint("Range")
     public ArrayList<WebPage> getAllWebPages() {
         ArrayList<WebPage> webpages = new ArrayList<>();
@@ -39,10 +49,10 @@ public class WebPageDatabase {
         Cursor cursor = db.rawQuery("SELECT * FROM webpage", null);
         if (cursor.moveToFirst()) {
             do {
-                int id = cursor.getInt(cursor.getColumnIndex("id"));
+
                  String url = cursor.getString(cursor.getColumnIndex("url"));
                 String htmlContent = cursor.getString(cursor.getColumnIndex("html_content"));
-                webpages.add(new WebPage(url, htmlContent,id));
+                webpages.add(new WebPage(url, htmlContent));
             } while (cursor.moveToNext());
         }
         cursor.close();
